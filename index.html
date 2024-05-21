@@ -11,69 +11,25 @@
         margin: 0;
         background: #0f6825;
       }
-      canvas {
-        background: #929292;
-        display: block;
-        margin: 0 auto;
-        border:black 4px solid;
+      body { 
+        text-align: center; 
+      } 
+
+      .boardspace {
+        height: 30px; 
+        width: 30px; 
+        border: 1.5px solid grey; 
+        border-style: inset;
+        background-color: white; 
+      } 
+      .boardspace:hover {
+        cursor: pointer;
       }
     </style>
   </head>
 
   <body>
-    <canvas id="myCanvas" width="440" height="440"></canvas>
-    <script>
-      // Get the canvas and context
-      const canvas = document.getElementById("myCanvas");
-      const ctx = canvas.getContext("2d");
-
-      const boardRows = 11;
-      const boardColumns = 11;
-      let rowWidth = canvas.height / boardRows;
-      let columnWidth = canvas.width / boardColumns;
-      let pieceRadius = rowWidth / 2 - 1;
-
-      function drawBoard() {
-        // This will draw the lines for the board
-        let lineWidth = 4;
-        
-        // Vertical lines
-        let x = columnWidth;
-        ctx.fillStyle = "#000000";
-        for (let i = 0; i < boardColumns - 1; i++) {
-          ctx.beginPath();
-          ctx.fillRect(x, 0, lineWidth, canvas.height);
-          ctx.closePath();
-          x = x + columnWidth;
-        }
-
-        // Horizontal lines
-        let y = rowWidth;
-        for (let i = 0; i < boardRows - 1; i++) {
-          ctx.beginPath();
-          ctx.fillRect(0, y, canvas.width, lineWidth);
-          console.log(y + lineWidth);
-          ctx.closePath();
-          y = y + rowWidth;
-        }
-      }
-
-      function drawPiece(x, y) {
-        ctx.beginPath();
-        ctx.arc(x, y, pieceRadius, 0, Math.PI * 2);
-        ctx.fillStyle = "#0095DD";
-        ctx.strokeStyle = "#000000"
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
-      }
-
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBoard();
-        drawPiece(rowWidth/2, columnWidth/2);
-      }setInterval(draw, 100);
-
+    <script src = "scripts/game.js">
     </script>
   </body>
 </html>
