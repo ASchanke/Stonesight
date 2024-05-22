@@ -1,6 +1,7 @@
 var isGameGoing = true;
 
 var gameBoard;
+var boardTable;
 const boardWidth = 11;
 const boardHeight = 11;
 
@@ -15,11 +16,14 @@ class GameBoard {
 
         // Create the array to store the location of pieces
         this.#board = new Array(height);
-        for (var i = 0; i < this.#board.length; i++) {
+        for (let i = 0; i < this.#board.length; i++) {
             this.#board[i] = new Array(width);
         }
     }
 
+    getBoard() {
+        return this.#board;
+    }
     setSpace(x, y, piece) {
         this.#board[x][y] = piece;
     }
@@ -28,32 +32,73 @@ class GameBoard {
     }
 }
 
-function createBoardTable(width, height) {
-    // This is just used to center the table
-    var center = document.createElement("center");
-    // This will create the table for the board
-    var boardTable = document.createElement("table");
+class BoardTable {
+    table;
+    height;
+    width;
 
-    // Create the table
-    for (var i = 0; i < height; i++) {
-        // Create a row
-        var tr = document.createElement("tr");
-
-        // Create the cells in the row
-        for (var j = 0; j < width; j++) {
-            var td = document.createElement("td");
-            td.setAttribute("class", "boardspace");
-            // Add the cell to the row
-            tr.appendChild(td);
-        }
-        // Add the row to the table
-        boardTable.appendChild(tr);
+    constructor(height, width) {
+        this.height = height;
+        this.width = width;
+        this.table = this.createBoardTable(width, height);
     }
 
-    // Set the attributes
-    center.appendChild(boardTable);
-    boardTable.setAttribute("cellspacing", 0);
-    document.body.appendChild(center);
+    createBoardTable(width, height) {
+        // This is just used to center the table
+        let center = document.createElement("center");
+        // This will create the table for the board
+        let boardTable = document.createElement("table");
+    
+        // Create the table
+        for (let i = 0; i < height; i++) {
+            // Create a row
+            let tr = document.createElement("tr");
+    
+            // Create the cells in the row
+            for (let j = 0; j < width; j++) {
+                let td = document.createElement("td");
+                // Give each cell the class "boardspace"
+                td.setAttribute("class", "boardspace");
+                // Give each boardspace a unique ID based on its location
+                td.setAttribute("id", this.coordinatesToCellId(j, i));
+                // Add the cell to the row
+                tr.appendChild(td);
+            }
+            // Add the row to the table
+            boardTable.appendChild(tr);
+        }
+    
+        // Set the attributes
+        center.appendChild(boardTable);
+        boardTable.setAttribute("cellspacing", 0);
+        document.body.appendChild(center);
+    
+        return boardTable;
+    }
+
+    updateBoardTable(gameBoard){
+        // Go through the board
+        for (let i = 0; i < gameBoard.height; i++) {
+            for (let j = 0; j < gameBoard.width; j++) {
+                // Find the cell for that space
+                let cellId = this.coordinatesToCellId(j,i);
+                // Set its value
+                let spaceValue = gameBoard.getSpace(j,i);
+                if (spaceValue === "attacker") {
+                    document.getElementById(cellId).innerHTML = "A";
+                } else if (spaceValue === "defender") {
+                    document.getElementById(cellId).innerHTML = "D";
+                } else if (spaceValue === "king") {
+                    document.getElementById(cellId).innerHTML = "K";
+                }
+            }
+        }
+    }
+
+    coordinatesToCellId(x,y) {
+        let cellId = "boardspace" + x + "." + y;
+        return cellId;
+    }
 }
 
 function populateBoard(board) {
@@ -89,6 +134,9 @@ function populateBoard(board) {
     board.setSpace(5, 5, "king");
 }
 
+
 gameBoard = new GameBoard(boardWidth, boardHeight);
-createBoardTable(gameBoard.width, gameBoard.height);
+boardTable = new BoardTable(gameBoard.width, gameBoard.height);
 populateBoard(gameBoard);
+boardTable.updateBoardTable(gameBoard);
+
