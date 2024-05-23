@@ -28,19 +28,50 @@ class GameBoard {
         this.#board[x][y] = piece;
     }
     getSpace(x, y) {
-        return this.#board[x][y];
+        let piece = this.#board[x][y];
+        return piece;
+    }
+    getValidMoves(x,y) {
+        // IN PROGRESS
+        // Given a space with a piece,  return the places that piece can move.
+
+        // Create a list of the adjacent spaces
+        let open; 
+        if (x > 0) {
+            open.add([x-1, y]);
+        }
+        if (x < spaces[y].length-1) {
+            open.add([x+1, y]);
+        }
+        if (y > 0) {
+            open.add([x, y-1]);
+        }
+        if (y < spaces.length-1) {
+            open.add([x, y+1]);
+        }
+
+
+
     }
 }
 
 class BoardTable {
     table;
+    gameBoard;
+
     height;
     width;
 
-    constructor(height, width) {
-        this.height = height;
-        this.width = width;
-        this.table = this.createBoardTable(width, height);
+    // Stores the id of the selected cell
+    selectedCell = null;
+    // Stores the id of cells the pieces can be moved to
+    validMoveCells = null;
+
+    constructor(gameBoard) {
+        this.height = gameBoard.height;
+        this.width = gameBoard.width;
+        this.gameBoard = gameBoard;
+        this.table = this.createBoardTable(this.width, this.height);
     }
 
     createBoardTable(width, height) {
@@ -61,6 +92,39 @@ class BoardTable {
                 td.setAttribute("class", "boardspace");
                 // Give each boardspace a unique ID based on its location
                 td.setAttribute("id", this.coordinatesToCellId(j, i));
+                // Set the event listeners
+                // Highlight on mouseover
+                td.addEventListener(
+                    "mouseover",
+                    (event) => {
+                      // highlight the mouseover target
+                      event.target.style.color = "orange";
+                    },
+                    false,
+                  );
+                // Remove the highlight when the mouse leaves it
+                td.addEventListener("mouseleave", (event) => {
+                    event.target.style.color = "";
+                });
+                // Select or deselect the square
+                td.addEventListener("click", (event) => {
+                    // Check if there is a piece there
+                    let cellCoords = this.cellIdToCoordinates(event.target.id);
+                    console.log(cellCoords[0] + "-" + cellCoords[1]);
+                    // If there already is a space selected, deselect it.
+                    if (this.selectedCell != null) {
+                        let cell = document.getElementById(this.selectedCell);
+                        cell.style.background = "";
+                        this.selectedCell = null;
+                    }
+                    // If there is a piecer where we're clicking, select that cell
+                    if (gameBoard.getSpace(cellCoords[0], cellCoords[1]) != null) {
+                        // If there is, select it
+                        this.selectedCell = td.id;
+                        event.target.style.color = "";
+                        event.target.style.background = "orange";
+                    }
+                  });
                 // Add the cell to the row
                 tr.appendChild(td);
             }
@@ -90,14 +154,26 @@ class BoardTable {
                     document.getElementById(cellId).innerHTML = "D";
                 } else if (spaceValue === "king") {
                     document.getElementById(cellId).innerHTML = "K";
+                } else {
+                    document.getElementById(cellId).innerHTML = "";
                 }
             }
         }
     }
 
     coordinatesToCellId(x,y) {
+        // Takes coordinates and turns them into a string that is the id for the matching cell
         let cellId = "boardspace" + x + "." + y;
         return cellId;
+    }
+    cellIdToCoordinates(cellId) {
+        // Takes a string and splits it into the coordinates of the cell
+        let split = cellId.split('space');
+        let x = parseInt(split[1]);
+        split = cellId.split('.');
+        let y = parseInt(split[1]);
+        let coordinates = [x, y]
+        return coordinates;
     }
 }
 
@@ -136,7 +212,7 @@ function populateBoard(board) {
 
 
 gameBoard = new GameBoard(boardWidth, boardHeight);
-boardTable = new BoardTable(gameBoard.width, gameBoard.height);
+boardTable = new BoardTable(gameBoard);
 populateBoard(gameBoard);
 boardTable.updateBoardTable(gameBoard);
 
