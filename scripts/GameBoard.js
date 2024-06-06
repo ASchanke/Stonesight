@@ -26,19 +26,20 @@ class GameBoard {
   }
   getAdjacentSpaces(x, y) {
     // Create a list of the adjacent spaces
-    let open;
+    let open = [];
     if (x > 0) {
       open.push([x - 1, y]);
     }
-    if (x < spaces[y].length - 1) {
+    if (x < this.#board[y].length - 1) {
       open.push([x + 1, y]);
     }
     if (y > 0) {
       open.push([x, y - 1]);
     }
-    if (y < spaces.length - 1) {
+    if (y < this.#board.length - 1) {
       open.push([x, y + 1]);
     }
+    console.log(open);
     return open;
   }
   getValidMoves(x, y) {
@@ -47,21 +48,21 @@ class GameBoard {
     // Create a 2D array to store adjacent open spaces to return later.
     let openSpaces = [];
     // Get all the possible spaces
-    adjacentSpaces = this.getAdjacentSpaces(x, y);
+    let adjacentSpaces = this.getAdjacentSpaces(x, y);
     // Go through that list and find which ones are allowed
     for (let i = 0; i < adjacentSpaces.length; i++) {
       let possibleX = adjacentSpaces[i][0];
       let possibleY = adjacentSpaces[i][1];
       // If the space is empty
-      if (this.#board.getSpace(possibleX, possibleY) == null) {
+      if (this.getSpace(possibleX, possibleY) == null) {
         // Count number of surrounding enemies
         let enemyNum = 0;
-        for (space1 of getAdjacentSpaces(possibleX, possibleY)) {
+        for (let space1 of this.getAdjacentSpaces(possibleX, possibleY)) {
           // Check if there is a surrounding piece there
-          if (checkSpace(space1[0], space1[1]) != null) {
+          if (this.getSpace(space1[0], space1[1]) != null) {
             // Check if the piece is on the opposite team, not including the king.
-            let originalPieceTeam = checkSpace(x, y);
-            let targetPieceTeam = checkSpace(space1[0], space1[1]);
+            let originalPieceTeam = this.getSpace(x, y);
+            let targetPieceTeam = this.getSpace(space1[0], space1[1]);
             if (
               (originalPieceTeam == "attacker" &&
                 targetPieceTeam == "defender") ||
@@ -69,11 +70,11 @@ class GameBoard {
             ) {
               //Log.d("Step 3", "Enemy found");
               // Check if there are any ally pieces adjacent to the enemy piece. If there is, it's automatically a valid move.
-              for (space2 of getAdjacentSpaces(space1[0], space1[1])) {
+              for (let space2 of this.getAdjacentSpaces(space1[0], space1[1])) {
                 // If there is a piece
-                if (checkSpace(space2[0], space2[1]) != null) {
+                if (this.getSpace(space2[0], space2[1]) != null) {
                   // Check if it's an ally
-                  let targetPieceTeam = checkSpace(space2[0], space2[1]);
+                  let targetPieceTeam = this.getSpace(space2[0], space2[1]);
                   if (
                     (originalPieceTeam == "attacker" &&
                       targetPieceTeam == "attacker") ||

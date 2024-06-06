@@ -73,6 +73,17 @@ class BoardTable {
             this.selectedCell = td.id;
             event.target.style.color = "";
             event.target.style.background = "orange";
+            // Highlight all the valid moves
+            let validMoves = gameBoard.getValidMoves(
+              cellCoords[0],
+              cellCoords[1]
+            );
+            for (let space of validMoves) {
+              let cellId = this.coordinatesToCellId(space[0], space[1]);
+              let cell = document.getElementById(cellId);
+              cell.style.color = "";
+              cell.style.background = "green";
+            }
           }
         });
         // Add the cell to the row
