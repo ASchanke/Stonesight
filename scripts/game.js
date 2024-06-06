@@ -1,4 +1,5 @@
 var isGameGoing = true;
+var turn = "defender";
 
 var gameBoard;
 var boardTable;
@@ -58,42 +59,67 @@ class BoardTable {
         });
         // Select or deselect the square
         td.addEventListener("click", (event) => {
-          // Reset the style of all the boardspaces
-          for (let i = 0; i < boardHeight; i++) {
-            for (let j = 0; j < boardWidth; j++) {
-              let cellId = this.coordinatesToCellId(j, i);
-              let cell = document.getElementById(cellId);
-              cell.style.background = "white";
+          if (isGameGoing) {
+            // Reset the style of all the boardspaces
+            for (let i = 0; i < boardHeight; i++) {
+              for (let j = 0; j < boardWidth; j++) {
+                let cellId = this.coordinatesToCellId(j, i);
+                let cell = document.getElementById(cellId);
+                cell.style.background = "white";
+              }
             }
-          }
-          // Check if there is a piece there
-          let cellCoords = this.cellIdToCoordinates(event.target.id);
-          console.log(cellCoords[0] + "-" + cellCoords[1]);
-          // If there already is a space selected, deselect it.
-          if (this.selectedCell != null) {
-            let cell = document.getElementById(this.selectedCell);
-            this.selectedCell = null;
-            this.validMoveCells = null;
-          }
-          // If there is a piece where we're clicking, select that cell
-          if (gameBoard.getSpace(cellCoords[0], cellCoords[1]) != null) {
-            // If there is, select it
-            this.selectedCell = td.id;
-            event.target.style.color = "";
-            event.target.style.background = "orange";
-            // Highlight all the valid moves
-            let validMoves = gameBoard.getValidMoves(
-              cellCoords[0],
-              cellCoords[1]
-            );
-            this.validMoveCells = []; // Save these moves for the next input.
-            // Set the background of the cells with valid moves.
-            for (let space of validMoves) {
-              let cellId = this.coordinatesToCellId(space[0], space[1]);
-              this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
-              let cell = document.getElementById(cellId);
-              cell.style.color = "";
-              cell.style.background = "green";
+
+            // If we're clicking with a space highlighted as a valid move, do the move
+            if (this.validMoveCells !== null) {
+              let cellIndex = this.validMoveCells.indexOf(event.target.id);
+              if (cellIndex !== -1) {
+                let newCell = this.validMoveCells[cellIndex];
+                let newSpace = this.cellIdToCoordinates(newCell);
+                let oldSpace = this.cellIdToCoordinates(this.selectedCell);
+                let piece = gameBoard.getSpace(oldSpace[0], oldSpace[1]);
+
+                gameBoard.setSpace(newSpace[0], newSpace[1], piece);
+                gameBoard.setSpace(oldSpace[0], oldSpace[1], null);
+
+                this.updateBoardTable(gameBoard);
+
+                // Clear all the saved states
+                this.selectedCell = null;
+                this.validMoveCells = null;
+
+                return;
+              }
+            }
+
+            // If there already is a space selected, deselect it.
+            if (this.selectedCell != null) {
+              let cell = document.getElementById(this.selectedCell);
+              this.selectedCell = null;
+              this.validMoveCells = null;
+            }
+
+            // Get the coordinates from the cell ID
+            let cellCoords = this.cellIdToCoordinates(event.target.id);
+            // If there is a piece where we're clicking, select that cell
+            if (gameBoard.getSpace(cellCoords[0], cellCoords[1]) != null) {
+              // If there is, select it
+              this.selectedCell = td.id;
+              event.target.style.color = "";
+              event.target.style.background = "orange";
+              // Highlight all the valid moves
+              let validMoves = gameBoard.getValidMoves(
+                cellCoords[0],
+                cellCoords[1]
+              );
+              this.validMoveCells = []; // Save these moves for the next input.
+              // Set the background of the cells with valid moves.
+              for (let space of validMoves) {
+                let cellId = this.coordinatesToCellId(space[0], space[1]);
+                this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
+                let cell = document.getElementById(cellId);
+                cell.style.color = "";
+                cell.style.background = "green";
+              }
             }
           }
         });
