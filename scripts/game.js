@@ -58,14 +58,22 @@ class BoardTable {
         });
         // Select or deselect the square
         td.addEventListener("click", (event) => {
+          // Reset the style of all the boardspaces
+          for (let i = 0; i < boardHeight; i++) {
+            for (let j = 0; j < boardWidth; j++) {
+              let cellId = this.coordinatesToCellId(j, i);
+              let cell = document.getElementById(cellId);
+              cell.style.background = "white";
+            }
+          }
           // Check if there is a piece there
           let cellCoords = this.cellIdToCoordinates(event.target.id);
           console.log(cellCoords[0] + "-" + cellCoords[1]);
           // If there already is a space selected, deselect it.
           if (this.selectedCell != null) {
             let cell = document.getElementById(this.selectedCell);
-            cell.style.background = "";
             this.selectedCell = null;
+            this.validMoveCells = null;
           }
           // If there is a piece where we're clicking, select that cell
           if (gameBoard.getSpace(cellCoords[0], cellCoords[1]) != null) {
@@ -78,8 +86,11 @@ class BoardTable {
               cellCoords[0],
               cellCoords[1]
             );
+            this.validMoveCells = []; // Save these moves for the next input.
+            // Set the background of the cells with valid moves.
             for (let space of validMoves) {
               let cellId = this.coordinatesToCellId(space[0], space[1]);
+              this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
               let cell = document.getElementById(cellId);
               cell.style.color = "";
               cell.style.background = "green";

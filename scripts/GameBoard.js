@@ -39,7 +39,6 @@ class GameBoard {
     if (y < this.#board.length - 1) {
       open.push([x, y + 1]);
     }
-    console.log(open);
     return open;
   }
   getValidMoves(x, y) {
