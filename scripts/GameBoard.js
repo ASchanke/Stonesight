@@ -49,7 +49,6 @@ class GameBoard {
     return open;
   }
   getValidMoves(x, y, piece) {
-    console.log();
     // IN PROGRESS
     // Given a space with a piece, return the places that piece can move.
     // Create a 2D array to store adjacent open spaces to return later.
@@ -77,8 +76,6 @@ class GameBoard {
               // Check if there are any ally pieces adjacent to the enemy piece. If there is, it's automatically a valid move.
               // This isn't valid for kings because you can't sacrifice them.
               if (piece != "king") {
-                console.log("This piece is not a king.");
-                console.log(piece);
                 for (let space2 of this.getAdjacentSpaces(
                   space1[0],
                   space1[1]
@@ -98,14 +95,6 @@ class GameBoard {
                 }
               }
               enemyNum++;
-              console.log(
-                "Enemy found at: " +
-                  space1[0] +
-                  " " +
-                  space1[1] +
-                  ". Total Enemy Count: " +
-                  enemyNum
-              );
             }
           }
         }
@@ -118,5 +107,40 @@ class GameBoard {
       // If the space isn't empty, it's not a possible move. Don't do anything with it.
     }
     return openSpaces;
+  }
+
+  clearInvalidPieces() {
+    let spacesToClear = [];
+    // Go through the board
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        // If there's a piece in this space
+        if (this.getSpace(j, i) != null) {
+          // Count the number of enemies
+          let adjacentEnemies = 0;
+          let team = this.getSpaceTeam(j, i);
+
+          for (let space of this.getAdjacentSpaces(j, i)) {
+            if (this.getSpace(space[0], space[1]) != null) {
+              if (team !== this.getSpaceTeam(space[0], space[1])) {
+                // Exclude the king from this search because it can't take pieces
+                if (team !== "king") {
+                  adjacentEnemies++;
+                }
+              }
+            }
+          }
+          if (adjacentEnemies > 1) {
+            let space = [j, i];
+            spacesToClear.push(space);
+          }
+        }
+      }
+    }
+    console.log(spacesToClear);
+
+    for (let space of spacesToClear) {
+      this.setSpace(space[0], space[1], null);
+    }
   }
 }

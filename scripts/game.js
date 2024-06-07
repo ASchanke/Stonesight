@@ -88,6 +88,8 @@ class BoardTable {
                   turn = "defender";
                 }
 
+                // Remove all the pieces that are taken
+                gameBoard.clearInvalidPieces();
                 // Update the display
                 this.updateBoardTable(gameBoard);
 
