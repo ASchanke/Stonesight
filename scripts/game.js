@@ -57,7 +57,7 @@ class BoardTable {
         td.addEventListener("mouseleave", (event) => {
           event.target.style.color = "";
         });
-        // Select or deselect the square
+        // Select or deselect the square and piece movement
         td.addEventListener("click", (event) => {
           if (isGameGoing) {
             // Reset the style of all the boardspaces
@@ -81,6 +81,14 @@ class BoardTable {
                 gameBoard.setSpace(newSpace[0], newSpace[1], piece);
                 gameBoard.setSpace(oldSpace[0], oldSpace[1], null);
 
+                // Change the turn
+                if (turn === "defender") {
+                  turn = "attacker";
+                } else {
+                  turn = "defender";
+                }
+
+                // Update the display
                 this.updateBoardTable(gameBoard);
 
                 // Clear all the saved states
@@ -102,23 +110,29 @@ class BoardTable {
             let cellCoords = this.cellIdToCoordinates(event.target.id);
             // If there is a piece where we're clicking, select that cell
             if (gameBoard.getSpace(cellCoords[0], cellCoords[1]) != null) {
-              // If there is, select it
-              this.selectedCell = td.id;
-              event.target.style.color = "";
-              event.target.style.background = "orange";
-              // Highlight all the valid moves
-              let validMoves = gameBoard.getValidMoves(
-                cellCoords[0],
-                cellCoords[1]
-              );
-              this.validMoveCells = []; // Save these moves for the next input.
-              // Set the background of the cells with valid moves.
-              for (let space of validMoves) {
-                let cellId = this.coordinatesToCellId(space[0], space[1]);
-                this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
-                let cell = document.getElementById(cellId);
-                cell.style.color = "";
-                cell.style.background = "green";
+              // Check if it's the correct turn
+              let team = gameBoard.getSpaceTeam(cellCoords[0], cellCoords[1]);
+              if (turn === team) {
+                // Select the piece
+                this.selectedCell = td.id;
+                event.target.style.color = "";
+                event.target.style.background = "orange";
+                // Highlight all the valid moves
+                let piece = gameBoard.getSpace(cellCoords[0], cellCoords[1]);
+                let validMoves = gameBoard.getValidMoves(
+                  cellCoords[0],
+                  cellCoords[1],
+                  piece
+                );
+                this.validMoveCells = []; // Save these moves for the next input.
+                // Set the background of the cells with valid moves.
+                for (let space of validMoves) {
+                  let cellId = this.coordinatesToCellId(space[0], space[1]);
+                  this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
+                  let cell = document.getElementById(cellId);
+                  cell.style.color = "";
+                  cell.style.background = "green";
+                }
               }
             }
           }

@@ -24,6 +24,13 @@ class GameBoard {
     let piece = this.#board[x][y];
     return piece;
   }
+  getSpaceTeam(x, y) {
+    let piece = this.getSpace(x, y);
+    if (piece === "king") {
+      piece = "defender";
+    }
+    return piece;
+  }
   getAdjacentSpaces(x, y) {
     // Create a list of the adjacent spaces
     let open = [];
@@ -41,7 +48,8 @@ class GameBoard {
     }
     return open;
   }
-  getValidMoves(x, y) {
+  getValidMoves(x, y, piece) {
+    console.log();
     // IN PROGRESS
     // Given a space with a piece, return the places that piece can move.
     // Create a 2D array to store adjacent open spaces to return later.
@@ -60,31 +68,44 @@ class GameBoard {
           // Check if there is a surrounding piece there
           if (this.getSpace(space1[0], space1[1]) != null) {
             // Check if the piece is on the opposite team, not including the king.
-            let originalPieceTeam = this.getSpace(x, y);
-            let targetPieceTeam = this.getSpace(space1[0], space1[1]);
+            let targetPiece = this.getSpace(space1[0], space1[1]);
             if (
-              (originalPieceTeam == "attacker" &&
-                targetPieceTeam == "defender") ||
-              (originalPieceTeam == "defender" && targetPieceTeam == "attacker")
+              (piece === "attacker" && targetPiece === "defender") ||
+              (piece === "defender" && targetPiece === "attacker") ||
+              (piece === "king" && targetPiece === "attacker")
             ) {
-              //Log.d("Step 3", "Enemy found");
               // Check if there are any ally pieces adjacent to the enemy piece. If there is, it's automatically a valid move.
-              for (let space2 of this.getAdjacentSpaces(space1[0], space1[1])) {
-                // If there is a piece
-                if (this.getSpace(space2[0], space2[1]) != null) {
-                  // Check if it's an ally
-                  let targetPieceTeam = this.getSpace(space2[0], space2[1]);
-                  if (
-                    (originalPieceTeam == "attacker" &&
-                      targetPieceTeam == "attacker") ||
-                    (originalPieceTeam == "defender" &&
-                      targetPieceTeam == "defender")
-                  ) {
-                    enemyNum = -999999; // So enemyNum will be less than 2 and move will be valid
+              // This isn't valid for kings because you can't sacrifice them.
+              if (piece != "king") {
+                console.log("This piece is not a king.");
+                console.log(piece);
+                for (let space2 of this.getAdjacentSpaces(
+                  space1[0],
+                  space1[1]
+                )) {
+                  // If there is a piece
+                  if (this.getSpace(space2[0], space2[1]) != null) {
+                    // Check if it's an ally
+
+                    let targetPiece = this.getSpace(space2[0], space2[1]);
+                    if (
+                      (piece === "attacker" && targetPiece === "attacker") ||
+                      (piece === "defender" && targetPiece === "defender")
+                    ) {
+                      enemyNum = -999999; // So enemyNum will be less than 2 and move will be valid
+                    }
                   }
                 }
               }
               enemyNum++;
+              console.log(
+                "Enemy found at: " +
+                  space1[0] +
+                  " " +
+                  space1[1] +
+                  ". Total Enemy Count: " +
+                  enemyNum
+              );
             }
           }
         }
