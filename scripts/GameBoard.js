@@ -122,9 +122,10 @@ class GameBoard {
 
           for (let space of this.getAdjacentSpaces(j, i)) {
             if (this.getSpace(space[0], space[1]) != null) {
-              if (team !== this.getSpaceTeam(space[0], space[1])) {
+              let adjacentPiece = this.getSpace(space[0], space[1]);
+              if (team !== adjacentPiece) {
                 // Exclude the king from this search because it can't take pieces
-                if (team !== "king") {
+                if (adjacentPiece !== "king") {
                   adjacentEnemies++;
                 }
               }
