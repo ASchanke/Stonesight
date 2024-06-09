@@ -165,4 +165,34 @@ class GameBoard {
       this.setSpace(space[0], space[1], null);
     }
   }
+  checkIfGameOver() {
+    // Check if the game has ended, and if so who won.
+    // Find the king
+    let isKing = false;
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        // If there's a piece in this space
+        let piece = this.getSpace(j, i);
+        if (piece != null) {
+          if (piece === "king") {
+            isKing = true;
+            // If the king is on the edge, the defenders won
+            if (
+              i === 0 ||
+              i === this.height - 1 ||
+              j === 0 ||
+              j === this.width - 1
+            ) {
+              return "defender";
+            }
+          }
+        }
+      }
+    }
+    // If we don't find the king, the attackers win.
+    if (!isKing) {
+      return "attacker";
+    }
+    return null;
+  }
 }

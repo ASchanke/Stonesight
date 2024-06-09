@@ -107,6 +107,18 @@ class BoardTable {
                 gameBoard.clearInvalidPieces();
                 // Update if we're in the flee phase
                 isFleePhase = gameBoard.getFleePhase();
+                // Check if the game is over
+                let checkIfGameOver = gameBoard.checkIfGameOver();
+                if (checkIfGameOver != null) {
+                  isGameGoing = false;
+                  if (checkIfGameOver === "attacker") {
+                    console.log("The attackers have captured the king!");
+                  } else {
+                    console.log(
+                      "The defenders successfully protected the king!"
+                    );
+                  }
+                }
                 // Update the display
                 this.updateBoardTable(gameBoard);
 
