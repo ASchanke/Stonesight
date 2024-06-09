@@ -1,5 +1,7 @@
-var isGameGoing = true;
-var turn = "defender";
+var isGameGoing = true; // Is the game running
+var turn = "defender"; // Whose turn is it? Defenders go first
+var isFleePhase = false; // Do we have the phase with flee turns?
+var hasFleeTurn = true; // Have the defenders used their flee turn?
 
 var gameBoard;
 var boardTable;
@@ -17,6 +19,8 @@ class BoardTable {
   selectedCell = null;
   // Stores the id of cells the pieces can be moved to
   validMoveCells = null;
+  // Previously moved defender for flee rules
+  prevMovedCell = null;
 
   constructor(gameBoard) {
     this.height = gameBoard.height;
@@ -73,8 +77,7 @@ class BoardTable {
             if (this.validMoveCells !== null) {
               let cellIndex = this.validMoveCells.indexOf(event.target.id);
               if (cellIndex !== -1) {
-                let newCell = this.validMoveCells[cellIndex];
-                let newSpace = this.cellIdToCoordinates(newCell);
+                let newSpace = this.cellIdToCoordinates(event.target.id);
                 let oldSpace = this.cellIdToCoordinates(this.selectedCell);
                 let piece = gameBoard.getSpace(oldSpace[0], oldSpace[1]);
 
@@ -83,13 +86,27 @@ class BoardTable {
 
                 // Change the turn
                 if (turn === "defender") {
-                  turn = "attacker";
+                  // If it wasn't the flee phase or if it was but the defender used the flee turn, swap teams.
+                  if ((isFleePhase && !hasFleeTurn) || !isFleePhase) {
+                    turn = "attacker";
+                    this.prevMovedCell = null; // Clear this so you call move any piece next turn
+                  } else if (isFleePhase && hasFleeTurn) {
+                    // If we are in the flee phase and the defender did their first turn
+                    hasFleeTurn = false;
+                    // Save the piece so you can't move it again immediately
+                    if (piece === "defender") {
+                      this.prevMovedCell = event.target.id;
+                    }
+                  }
                 } else {
                   turn = "defender";
+                  hasFleeTurn = true; // Reset the flee turn counter in case the defenders used it
                 }
 
                 // Remove all the pieces that are taken
                 gameBoard.clearInvalidPieces();
+                // Update if we're in the flee phase
+                isFleePhase = gameBoard.getFleePhase();
                 // Update the display
                 this.updateBoardTable(gameBoard);
 
@@ -115,25 +132,31 @@ class BoardTable {
               // Check if it's the correct turn
               let team = gameBoard.getSpaceTeam(cellCoords[0], cellCoords[1]);
               if (turn === team) {
-                // Select the piece
-                this.selectedCell = td.id;
-                event.target.style.color = "";
-                event.target.style.background = "orange";
-                // Highlight all the valid moves
-                let piece = gameBoard.getSpace(cellCoords[0], cellCoords[1]);
-                let validMoves = gameBoard.getValidMoves(
-                  cellCoords[0],
-                  cellCoords[1],
-                  piece
-                );
-                this.validMoveCells = []; // Save these moves for the next input.
-                // Set the background of the cells with valid moves.
-                for (let space of validMoves) {
-                  let cellId = this.coordinatesToCellId(space[0], space[1]);
-                  this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
-                  let cell = document.getElementById(cellId);
-                  cell.style.color = "";
-                  cell.style.background = "green";
+                // Check if it's the flee phase and that this piece wasn't already moved
+                if (
+                  !isFleePhase ||
+                  (isFleePhase && this.prevMovedCell != event.target.id)
+                ) {
+                  // Select the piece
+                  this.selectedCell = td.id;
+                  event.target.style.color = "";
+                  event.target.style.background = "orange";
+                  // Highlight all the valid moves
+                  let piece = gameBoard.getSpace(cellCoords[0], cellCoords[1]);
+                  let validMoves = gameBoard.getValidMoves(
+                    cellCoords[0],
+                    cellCoords[1],
+                    piece
+                  );
+                  this.validMoveCells = []; // Save these moves for the next input.
+                  // Set the background of the cells with valid moves.
+                  for (let space of validMoves) {
+                    let cellId = this.coordinatesToCellId(space[0], space[1]);
+                    this.validMoveCells.push(cellId); // Add it to the array of validMoveCells
+                    let cell = document.getElementById(cellId);
+                    cell.style.color = "";
+                    cell.style.background = "green";
+                  }
                 }
               }
             }

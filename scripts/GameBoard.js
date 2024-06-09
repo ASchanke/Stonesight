@@ -31,6 +31,27 @@ class GameBoard {
     }
     return piece;
   }
+  getFleePhase() {
+    // Check if we have few enough defenders to start the flee phase. 4 or less including the king
+    let defenderCount = 0;
+    // Go through the board
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        // If there's a piece in this space
+        if (this.getSpace(j, i) != null) {
+          let team = this.getSpaceTeam(j, i);
+          if (team === "defender") {
+            defenderCount++;
+          }
+        }
+      }
+    }
+
+    if (defenderCount < 5) {
+      return true;
+    }
+    return false;
+  }
   getAdjacentSpaces(x, y) {
     // Create a list of the adjacent spaces
     let open = [];
